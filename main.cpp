@@ -26,51 +26,28 @@ Mat kernel, src, dst;
 Point anchor;
 double delta;
 int ddepth;
-vector<float> extractNumbers(string line, char delimeter) {
+vector<float> extractNumbers(string line, char delimiter) {
 	vector<float> a;
+	float f;
 	string forNow = "";
 	for (unsigned int i = 0; i < line.size(); i++) {
-		if (line[i] == delimeter) {
-			std::stringstream ss;
-			ss << forNow;
-			float f;
-			ss >> f;
+		if (line.at(i) == delimiter) {
+			f = ::atof(forNow.c_str());
+			//cout << ::atof(forNow.c_str()) << endl;
 			a.push_back(f);
 			forNow = "";
 		} else {
-			forNow += line[i];
-			//cout << forNow << endl;
+			forNow += line.at(i);
 		}
 	}
-	std::stringstream ss;
-	ss << forNow;
-	float f;
-	ss >> f;
-	a.push_back(f);
-	forNow = "";
+	f = ::atof(forNow.c_str());
 	//cout << f << endl;
+	a.push_back(f);
 	return a;
 }
 
 int main(int argc, char * argv[]) {
 	vector<vector<float> > fromFile;
-	/*DELETE*/
-	vector<float> firstRow;
-	firstRow.push_back(-1);
-	firstRow.push_back(-2);
-	firstRow.push_back(-1);
-	vector<float> secondRow;
-	secondRow.push_back(0);
-	secondRow.push_back(0);
-	secondRow.push_back(0);
-	vector<float> thirdRow;
-	thirdRow.push_back(1);
-	thirdRow.push_back(2);
-	thirdRow.push_back(1);
-	fromFile.push_back(firstRow);
-	fromFile.push_back(secondRow);
-	fromFile.push_back(thirdRow);
-	/*DELETE*/
 	string line;
 	if (argc < 3) {
 		cout << "Wrong usage" << endl;
@@ -78,15 +55,20 @@ int main(int argc, char * argv[]) {
 	ifstream myfile;
 	myfile.open(argv[1]);
 	if (myfile.is_open()) {
-		while (getline(myfile, line)) {
-			//cout << line << endl;
-			vector<float> firstLine = extractNumbers(line, ' ');
-			//cout << firstLine[0] << " " << firstLine[1] << endl;
+		while (!myfile.eof()) {
+			getline(myfile,line);
+			vector<float> floatLine = extractNumbers(line, ' ');
+			if(floatLine.size() == 2){
+				height = floatLine[0];
+				width = floatLine[1];
+			}
+			else{
+				fromFile.push_back(floatLine);
+			}
 		}
 		myfile.close();
 	}
-	height = 3;
-	width = 3;
+	cout << height << " " << width << endl;
 	src = imread(argv[2], 1);
 	anchor = Point(-1, -1);
 	delta = 0;
