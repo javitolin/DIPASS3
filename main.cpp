@@ -51,6 +51,7 @@ int main(int argc, char * argv[]) {
 	string line;
 	if (argc < 3) {
 		cout << "Wrong usage" << endl;
+		return -1;
 	}
 	ifstream myfile;
 	myfile.open(argv[1]);
