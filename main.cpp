@@ -26,6 +26,8 @@ Mat kernel, src, dst;
 Point anchor;
 double delta;
 int ddepth;
+
+
 vector<float> extractNumbers(string line, char delimiter) {
 	vector<float> a;
 	float f;
@@ -47,33 +49,52 @@ vector<float> extractNumbers(string line, char delimiter) {
 }
 
 int main(int argc, char * argv[]) {
+	bool firstLine = true;
 	vector<vector<float> > fromFile;
 	string line;
 	if (argc < 3) {
 		cout << "Wrong usage" << endl;
 		return -1;
 	}
+	/*Load File*/
 	ifstream myfile;
 	myfile.open(argv[1]);
 	if (myfile.is_open()) {
 		while (!myfile.eof()) {
 			getline(myfile,line);
 			vector<float> floatLine = extractNumbers(line, ' ');
-			if(floatLine.size() == 2){
+			if(firstLine){
+				if(floatLine.size() != 2){
+					cout << "Error: First Line must be width height only!" << endl;
+					return -1;
+				}
+				firstLine = false;
 				height = floatLine[0];
 				width = floatLine[1];
 			}
 			else{
+				if(floatLine.size() != width){
+					cout << "Error: Matrix is not in the size of specified width!" << endl;
+					return -1;
+				}
 				fromFile.push_back(floatLine);
 			}
 		}
 		myfile.close();
 	}
+	if(fromFile.size() != width){
+		cout << "Error: Matrix is not in the size of specified Height!" << endl;
+		return -1;
+	}
 	cout << height << " " << width << endl;
+	/*Read Image*/
 	src = imread(argv[2], 1);
+	/*Init Vars*/
 	anchor = Point(-1, -1);
 	delta = 0;
 	ddepth = -1;
+	
+	/*Create Filter matrix*/
 	kernel = Mat::ones(height, width, CV_32F);
 	int sum = 0;
 	for (int i = 0; i < height; i++) {
@@ -82,6 +103,8 @@ int main(int argc, char * argv[]) {
 			sum += fromFile[i][j];
 		}
 	}
+	
+	/*Normalize Matrix*/
 	if (sum != 0) {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
@@ -89,11 +112,15 @@ int main(int argc, char * argv[]) {
 			}
 		}
 	}
+	
+	/*Apply Filter*/
 	filter2D(src, dst, ddepth, kernel, anchor, delta, BORDER_DEFAULT);
-	if (argc == 4) {
+	
+	
+	if (argc == 4) {	/*Write to file.*/
 		cout << "Writing to file " << argv[3] << endl;
 		imwrite(argv[3], dst);
-	} else {
+	} else {			/*Show on screen.*/
 		namedWindow("Source Image", CV_WINDOW_AUTOSIZE);
 		imshow("Source Image", src);
 		namedWindow("Dst Image", CV_WINDOW_AUTOSIZE);
