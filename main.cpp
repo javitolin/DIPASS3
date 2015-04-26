@@ -53,19 +53,24 @@ int main(int argc, char * argv[]) {
 	vector<vector<float> > fromFile;
 	string line;
 	if (argc < 3) {
-		cout << "Wrong usage" << endl;
+		cout << "Usage: ApplyFilter input_image_file filter_file output_image_file" << endl;
+		cin.get();
 		return -1;
 	}
+	string filterFile = argv[2];
+	string imageFile  = argv[1];
 	/*Load File*/
 	ifstream myfile;
-	myfile.open(argv[1]);
+	myfile.open(filterFile);
 	if (myfile.is_open()) {
 		while (!myfile.eof()) {
 			getline(myfile,line);
 			vector<float> floatLine = extractNumbers(line, ' ');
 			if(firstLine){
 				if(floatLine.size() != 2){
+					continue;
 					cout << "Error: First Line must be width height only!" << endl;
+					cin.get();
 					return -1;
 				}
 				firstLine = false;
@@ -75,6 +80,7 @@ int main(int argc, char * argv[]) {
 			else{
 				if(floatLine.size() != width){
 					cout << "Error: Matrix is not in the size of specified width!" << endl;
+					cin.get();
 					return -1;
 				}
 				fromFile.push_back(floatLine);
@@ -84,11 +90,12 @@ int main(int argc, char * argv[]) {
 	}
 	if(fromFile.size() != width){
 		cout << "Error: Matrix is not in the size of specified Height!" << endl;
+		cin.get();
 		return -1;
 	}
 	cout << height << " " << width << endl;
 	/*Read Image*/
-	src = imread(argv[2], 1);
+	src = imread(imageFile, 1);
 	/*Init Vars*/
 	anchor = Point(-1, -1);
 	delta = 0;
